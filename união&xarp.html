@@ -1,198 +1,318 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>União e Xarp | Graffiti Network</title>
-    
-    <!-- Fontes e Estilos de Mapa -->
-    <link href="https://googleapis.com" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com" />
-
+    <title>União e Xarp | O Point da Rua</title>
+    <!-- Script do Supabase para Banco de Dados e Realtime -->
+    <script src="https://jsdelivr.net"></script>
     <style>
-        :root { --neon-green: #ccff00; --neon-pink: #ff00ff; --dark: #080808; --gray: #151515; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            background: var(--dark); 
-            background-image: url('https://transparenttextures.com');
-            color: #fff; font-family: 'Inter', sans-serif; padding-bottom: 140px; 
+        /* Estilo Brutalista / Cultura de Rua */
+        @import url('https://googleapis.com');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        /* HEADER */
-        header { 
-            background: #000; padding: 15px 5%; 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 3px solid var(--neon-green); position: sticky; top: 0; z-index: 1000; 
+        body {
+            background-color: #0b0b0b;
+            /* Textura de muro chapiscado/concreto */
+            background-image: 
+                radial-gradient(rgba(255,255,255,0.03) 1px, transparent 0),
+                radial-gradient(rgba(255,255,255,0.02) 2px, transparent 0);
+            background-size: 8px 8px, 16px 16px;
+            color: #eceff1;
+            font-family: 'Rubik', sans-serif;
+            padding-bottom: 120px;
         }
-        .logo { font-family: 'Permanent Marker'; font-size: 1.8rem; color: var(--neon-green); text-shadow: 2px 2px var(--neon-pink); }
 
-        /* SEÇÕES */
-        .manifesto { background: linear-gradient(45deg, #111, #000); margin: 20px 5%; padding: 30px; border-left: 5px solid var(--neon-green); border-radius: 10px; text-align: center; }
-        #map { width: 100%; height: 350px; border-bottom: 2px solid var(--neon-pink); }
-
-        /* GRID PRINCIPAL */
-        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding: 20px 5%; }
-        .card { background: var(--gray); border-radius: 15px; margin-bottom: 30px; border: 1px solid #222; overflow: hidden; }
-        .card img, .card video { width: 100%; display: block; }
-
-        /* CHAT */
-        .chat-box { background: var(--gray); border-radius: 15px; border: 1px solid #333; padding: 15px; display: flex; flex-direction: column; height: 450px; }
-        #chat-window { flex: 1; overflow-y: auto; margin-bottom: 10px; font-size: 0.85rem; }
-        .chat-msg { background: #222; padding: 8px; border-radius: 5px; margin-bottom: 8px; border-left: 3px solid var(--neon-pink); }
-        .chat-msg b { color: var(--neon-green); }
-
-        /* APOIO PIX */
-        .pix-section { background: #000; border: 2px dashed var(--neon-green); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
-        .pix-key { font-family: 'Permanent Marker'; color: var(--neon-green); display: block; margin: 10px 0; }
-
-        /* RADIO BAR */
-        #radio-bar { 
-            position: fixed; bottom: 0; width: 100%; background: #000; 
-            border-top: 2px solid var(--neon-green); padding: 15px 5%; 
-            display: flex; justify-content: space-between; align-items: center; z-index: 2000; 
+        /* Topo Estilo Bombing */
+        header {
+            background: #000;
+            border-bottom: 5px solid #00ff66;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        .btn-neon { background: var(--neon-green); border: none; padding: 10px 15px; font-family: 'Permanent Marker'; cursor: pointer; }
-        .btn-pedir { background: transparent; border: 1px solid var(--neon-pink); color: var(--neon-pink); padding: 10px; font-family: 'Permanent Marker'; cursor: pointer; margin-right: 10px; font-size: 0.7rem; }
 
-        input[type="text"] { background: #111; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 5px; width: 100%; }
-        
-        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,0V50c50,20,100,20,150,0s100-20,150,0,100,20,150,0,100-20,150,0,100,20,150,0,100-20,150,0,100,20,150,0V0Z" fill="%2300ff66"/></svg>');
+        }
+
+        .logo {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 4.5rem;
+            color: #ff0055;
+            text-transform: uppercase;
+            text-shadow: 4px 4px 0px #00ff66, -2px -2px 0px #fff;
+            letter-spacing: 3px;
+            transform: rotate(-2deg);
+            display: inline-block;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        /* Layout em Grade */
+        .container {
+            max-width: 1300px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        /* Seções Gerais */
+        .section-box {
+            background: rgba(15, 15, 15, 0.95);
+            border: 3px solid #222;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 6px 6px 0px #111;
+        }
+
+        .section-title {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 2rem;
+            color: #00ff66;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Form de Envio do Mural */
+        .post-form input, .post-form textarea {
+            width: 100%;
+            background: #161616;
+            border: 2px solid #333;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+
+        .post-form input:focus, .post-form textarea:focus {
+            border-color: #ff0055;
+            outline: none;
+        }
+
+        .btn-spray {
+            background: #ff0055;
+            color: #fff;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.3rem;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #00ff66;
+            transition: 0.1s ease-in;
+        }
+
+        .btn-spray:active {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 0px #00ff66;
+        }
+
+        /* Feed do Mural */
+        .mural-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .mural-card {
+            background: #161616;
+            border: 2px solid #222;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: 0.2s;
+        }
+
+        .mural-card:hover {
+            border-color: #00ff66;
+        }
+
+        .mural-card img, .mural-card video {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-bottom: 3px solid #ff0055;
+        }
+
+        .mural-info {
+            padding: 15px;
+        }
+
+        .mural-user {
+            color: #00ff66;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        /* Rádio Flutuante Fixa Embaixo */
+        .radio-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #000;
+            border-top: 4px solid #ff0055;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            box-shadow: 0 -5px 25px rgba(255,0,85,0.2);
+        }
+
+        .radio-details h3 {
+            color: #ff0055;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.5rem;
+        }
+
+        .radio-details p {
+            color: #00ff66;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        /* Chat do Crew */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 450px;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            background: #111;
+            border: 2px solid #222;
+            padding: 15px;
+            overflow-y: auto;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .chat-row {
+            margin-bottom: 12px;
+            line-height: 1.4;
+            font-size: 0.95rem;
+        }
+
+        .chat-user {
+            color: #ff0055;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        /* Caixa de Fortalecimento via Pix */
+        .pix-section {
+            grid-column: 1 / -1; 
+            background: #000; 
+            border: 3px dashed #ff0055; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 20px; 
+            padding: 20px 30px; 
+            margin-top: -10px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+        }
+
+        .pix-box {
+            background: #111; 
+            border: 2px solid #ff0055; 
+            padding: 10px 20px; 
+            font-family: monospace; 
+            font-size: 1.2rem; 
+            color: #00ff66; 
+            font-weight: bold; 
+            border-radius: 6px; 
+            letter-spacing: 0.5px; 
+            box-shadow: 3px 3px 0px #fff;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .pix-box:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #fff;
+        }
+
+        /* Responsivo */
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+            .radio-footer { flex-direction: column; text-align: center; gap: 15px; }
+            .pix-section { flex-direction: column; text-align: center; }
+        }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo">União e Xarp</div>
-        <div id="auth-ui">
-            <button id="loginBtn" class="btn-neon" onclick="login()">LOGAR</button>
-            <div id="user-info" style="display:none; align-items:center; gap:10px;">
-                <img id="user-pic" src="" style="width:35px; border-radius:50%; border:2px solid var(--neon-green)">
-                <button onclick="logout()" style="color:red; background:none; border:none; cursor:pointer;">SAIR</button>
-            </div>
-        </div>
+        <div class="tagline">O Point Oficial do Grafite, Rap, Reggae & MPB</div>
     </header>
 
-    <section class="manifesto">
-        <h2 style="font-family:'Permanent Marker'; color:var(--neon-pink)">O ROLÊ É UNIÃO</h2>
-        <p>Unindo siglas e grafiteiros de todos os cantos. Deixe sua marca no mapa e no mural.</p>
-    </section>
-
-    <div id="map"></div>
-
-    <div class="main-grid">
-        <!-- Feed de Fotos/Vídeos -->
-        <section id="feed"></section>
-
-        <!-- Lateral: Pix, Upload e Chat -->
-        <aside>
-            <div class="pix-section">
-                <small>⚡ MANUTENÇÃO DO SITE</small>
-                <strong class="pix-key">união&xarp@gmail.com</strong>
-                <p style="font-size: 0.7rem;">Fortaleça com qualquer valor via PIX!</p>
-            </div>
-
-            <div style="background:var(--gray); padding:15px; border-radius:15px; margin-bottom:20px;">
-                <h3 style="font-family:'Permanent Marker'; color:var(--neon-green)">POSTAR ARTE</h3>
-                <input type="file" id="upload" style="margin-top:10px;" onchange="uploadArt(this)">
-            </div>
-
-            <div class="chat-box">
-                <div id="chat-window"></div>
-                <div style="display:flex; gap:5px;">
-                    <input type="text" id="chat-input" placeholder="Manda o salve...">
-                    <button class="btn-neon" onclick="sendChat()">></button>
+    <div class="container">
+        
+        <!-- SEÇÃO DE FORTALECIMENTO (PIX) -->
+        <div class="pix-section">
+            <div style="display: flex; align-items: center; gap: 15px; text-align: left;">
+                <span style="font-size: 2.5rem;">💸</span>
+                <div>
+                    <h3 style="font-family: 'Permanent Marker', cursive; color: #00ff66; font-size: 1.6rem; margin-bottom: 5px;">FORTALECE A BANCA (PIX)</h3>
+                    <p style="color: #aaa; font-size: 0.95rem;">Ajude a manter a rádio 24h online e o servidor do muro de pé. Dá um clique na chave para copiar!</p>
                 </div>
             </div>
-        </aside>
-    </div>
-
-    <!-- Barra da Rádio -->
-    <div id="radio-bar">
-        <div><strong style="color:var(--neon-green)">RADIO UX</strong></div>
-        <audio id="audio" src="https://zeno.fm"></audio>
-        <div>
-            <button class="btn-pedir" onclick="pedirMusica()">🎤 PEDIR SOM</button>
-            <button class="btn-neon" onclick="toggleAudio()" id="playBtn">PLAY</button>
+            <div style="text-align: right;">
+                <span style="color: #fff; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px;">Chave Pix E-mail:</span>
+                <div class="pix-box" onclick="copiarPix()">
+                    uniaoexarp@gmail.com
+                </div>
+            </div>
         </div>
-    </div>
+        
+        <!-- COLUNA DA ESQUERDA: MURAL DA COMUNIDADE -->
+        <main class="section-box">
+            <div class="section-title">🎨 MURAL DAS RUAS (POSTAR FOTO/VÍDEO)</div>
+            
+            <div class="post-form">
+                <input type="text" id="mural-tag" placeholder="Seu Vulgo / Tag (Ex: Grapixo_ZN)" required>
+                <textarea id="mural-legenda" placeholder="Qual é a fita? Onde foi o rolê? Qual tinta usou?" rows="3"></textarea>
+                <input type="file" id="mural-file" accept="image/*,video/*" style="border: none; padding: 0;">
+                <button class="btn-spray" onclick="enviarMural()">Agitar o Spray 💨</button>
+            </div>
 
-    <!-- SCRIPTS -->
-    <script src="https://unpkg.com"></script>
-    <script type="module">
-        import { initializeApp } from "https://gstatic.com";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } from "https://gstatic.com";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://gstatic.com";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://gstatic.com";
+            <div class="mural-grid" id="mural-feed">
+                <!-- Posts entram aqui automaticamente -->
+            </div>
+        </main>
 
-        const firebaseConfig = { 
-            apiKey: "SUA_API_KEY", 
-            authDomain: "SEU_://firebaseapp.com", 
-            projectId: "SEU_PROJETO", 
-            storageBucket: "SEU_://appspot.com", 
-            messagingSenderId: "ID", appId: "APP_ID" 
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const storage = getStorage(app);
-        const provider = new GoogleAuthProvider();
-        let user = null;
-
-        // MAPA DARK
-        const map = L.map('map').setView([-23.55, -46.63], 12);
-        L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png').addTo(map);
-        map.on('click', async (e) => {
-            if(!user) return alert("Logue para marcar!");
-            const txt = prompt("Point de que?");
-            if(txt) await addDoc(collection(db, "points"), { lat: e.latlng.lat, lng: e.latlng.lng, info: txt });
-        });
-        onSnapshot(collection(db, "points"), s => s.forEach(d => L.marker([d.data().lat, d.data().lng]).addTo(map).bindPopup(d.data().info)));
-
-        // AUTH
-        window.login = () => signInWithPopup(auth, provider);
-        window.logout = () => signOut(auth);
-        onAuthStateChanged(auth, u => {
-            user = u;
-            document.getElementById('loginBtn').style.display = u ? 'none' : 'block';
-            document.getElementById('user-info').style.display = u ? 'flex' : 'none';
-            if(u) document.getElementById('user-pic').src = u.photoURL;
-        });
-
-        // CHAT
-        window.sendChat = async () => {
-            const i = document.getElementById('chat-input');
-            if(user && i.value) {
-                await addDoc(collection(db, "chat"), { text: i.value, user: user.displayName, createdAt: new Date() });
-                i.value = "";
-            }
-        };
-        onSnapshot(query(collection(db, "chat"), orderBy("createdAt", "asc"), limit(50)), s => {
-            const w = document.getElementById('chat-window');
-            w.innerHTML = "";
-            s.forEach(d => w.innerHTML += `<div class="chat-msg"><b>${d.data().user}:</b> ${d.data().text}</div>`);
-            w.scrollTop = w.scrollHeight;
-        });
-
-        // UPLOAD & FEED
-        window.uploadArt = async (i) => {
-            if(!user) return alert("Logue!");
-            const f = i.files[0];
-            const r = ref(storage, `mural/${Date.now()}`);
-            await uploadBytes(r, f);
-            const url = await getDownloadURL(r);
-            await addDoc(collection(db, "posts"), { url, author: user.displayName, type: f.type.includes('video') ? 'video' : 'image', createdAt: new Date() });
-        };
-        onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc")), s => {
-            const f = document.getElementById('feed'); f.innerHTML = "";
-            s.forEach(d => {
-                const p = d.data();
-                const m = p.type === 'video' ? `<video src="${p.url}" controls></video>` : `<img src="${p.url}">`;
-                f.innerHTML += `<div class="card"><div style="padding:10px; color:var(--neon-green)">@${p.author}</div>${m}</div>`;
-            });
-        });
-
-        // RÁDIO & WHATSAPP
-        window.toggleAudio = () => {
-            const a = document.getElementById('audio');
+        <!-- COLUNA DA DIREITA: CHAT EM TEMPO REAL -->
+        <aside class="section-box">
+            <div class="section-title">💬 CHAT DA CREW</div>
+            <div class="chat-container">
