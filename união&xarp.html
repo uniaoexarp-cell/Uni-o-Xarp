@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>União e Xarp | Graffiti Network</title>
+    
+    <!-- Fontes e Estilos de Mapa -->
+    <link href="https://googleapis.com" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com" />
+
+    <style>
+        :root { --neon-green: #ccff00; --neon-pink: #ff00ff; --dark: #080808; --gray: #151515; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--dark); 
+            background-image: url('https://transparenttextures.com');
+            color: #fff; font-family: 'Inter', sans-serif; padding-bottom: 140px; 
+        }
+
+        /* HEADER */
+        header { 
+            background: #000; padding: 15px 5%; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 3px solid var(--neon-green); position: sticky; top: 0; z-index: 1000; 
+        }
+        .logo { font-family: 'Permanent Marker'; font-size: 1.8rem; color: var(--neon-green); text-shadow: 2px 2px var(--neon-pink); }
+
+        /* SEÇÕES */
+        .manifesto { background: linear-gradient(45deg, #111, #000); margin: 20px 5%; padding: 30px; border-left: 5px solid var(--neon-green); border-radius: 10px; text-align: center; }
+        #map { width: 100%; height: 350px; border-bottom: 2px solid var(--neon-pink); }
+
+        /* GRID PRINCIPAL */
+        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding: 20px 5%; }
+        .card { background: var(--gray); border-radius: 15px; margin-bottom: 30px; border: 1px solid #222; overflow: hidden; }
+        .card img, .card video { width: 100%; display: block; }
+
+        /* CHAT */
+        .chat-box { background: var(--gray); border-radius: 15px; border: 1px solid #333; padding: 15px; display: flex; flex-direction: column; height: 450px; }
+        #chat-window { flex: 1; overflow-y: auto; margin-bottom: 10px; font-size: 0.85rem; }
+        .chat-msg { background: #222; padding: 8px; border-radius: 5px; margin-bottom: 8px; border-left: 3px solid var(--neon-pink); }
+        .chat-msg b { color: var(--neon-green); }
+
+        /* APOIO PIX */
+        .pix-section { background: #000; border: 2px dashed var(--neon-green); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
+        .pix-key { font-family: 'Permanent Marker'; color: var(--neon-green); display: block; margin: 10px 0; }
+
+        /* RADIO BAR */
+        #radio-bar { 
+            position: fixed; bottom: 0; width: 100%; background: #000; 
+            border-top: 2px solid var(--neon-green); padding: 15px 5%; 
+            display: flex; justify-content: space-between; align-items: center; z-index: 2000; 
+        }
+        .btn-neon { background: var(--neon-green); border: none; padding: 10px 15px; font-family: 'Permanent Marker'; cursor: pointer; }
+        .btn-pedir { background: transparent; border: 1px solid var(--neon-pink); color: var(--neon-pink); padding: 10px; font-family: 'Permanent Marker'; cursor: pointer; margin-right: 10px; font-size: 0.7rem; }
+
+        input[type="text"] { background: #111; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 5px; width: 100%; }
+        
+        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">União e Xarp</div>
+        <div id="auth-ui">
+            <button id="loginBtn" class="btn-neon" onclick="login()">LOGAR</button>
+            <div id="user-info" style="display:none; align-items:center; gap:10px;">
+                <img id="user-pic" src="" style="width:35px; border-radius:50%; border:2px solid var(--neon-green)">
+                <button onclick="logout()" style="color:red; background:none; border:none; cursor:pointer;">SAIR</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="manifesto">
+        <h2 style="font-family:'Permanent Marker'; color:var(--neon-pink)">O ROLÊ É UNIÃO</h2>
+        <p>Unindo siglas e grafiteiros de todos os cantos. Deixe sua marca no mapa e no mural.</p>
+    </section>
+
+    <div id="map"></div>
+
+    <div class="main-grid">
+        <!-- Feed de Fotos/Vídeos -->
+        <section id="feed"></section>
+
+        <!-- Lateral: Pix, Upload e Chat -->
+        <aside>
+            <div class="pix-section">
+                <small>⚡ MANUTENÇÃO DO SITE</small>
+                <strong class="pix-key">união&xarp@gmail.com</strong>
+                <p style="font-size: 0.7rem;">Fortaleça com qualquer valor via PIX!</p>
+            </div>
+
+            <div style="background:var(--gray); padding:15px; border-radius:15px; margin-bottom:20px;">
+                <h3 style="font-family:'Permanent Marker'; color:var(--neon-green)">POSTAR ARTE</h3>
+                <input type="file" id="upload" style="margin-top:10px;" onchange="uploadArt(this)">
+            </div>
+
+            <div class="chat-box">
+                <div id="chat-window"></div>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="chat-input" placeholder="Manda o salve...">
+                    <button class="btn-neon" onclick="sendChat()">></button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Barra da Rádio -->
+    <div id="radio-bar">
+        <div><strong style="color:var(--neon-green)">RADIO UX</strong></div>
+        <audio id="audio" src="https://zeno.fm"></audio>
+        <div>
+            <button class="btn-pedir" onclick="pedirMusica()">🎤 PEDIR SOM</button>
+            <button class="btn-neon" onclick="toggleAudio()" id="playBtn">PLAY</button>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://unpkg.com"></script>
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } from "https://gstatic.com";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://gstatic.com";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://gstatic.com";
+
+        const firebaseConfig = { 
+            apiKey: "SUA_API_KEY", 
+            authDomain: "SEU_://firebaseapp.com", 
+            projectId: "SEU_PROJETO", 
+            storageBucket: "SEU_://appspot.com", 
+            messagingSenderId: "ID", appId: "APP_ID" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+        const provider = new GoogleAuthProvider();
+        let user = null;
+
+        // MAPA DARK
+        const map = L.map('map').setView([-23.55, -46.63], 12);
+        L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png').addTo(map);
+        map.on('click', async (e) => {
+            if(!user) return alert("Logue para marcar!");
+            const txt = prompt("Point de que?");
+            if(txt) await addDoc(collection(db, "points"), { lat: e.latlng.lat, lng: e.latlng.lng, info: txt });
+        });
+        onSnapshot(collection(db, "points"), s => s.forEach(d => L.marker([d.data().lat, d.data().lng]).addTo(map).bindPopup(d.data().info)));
+
+        // AUTH
+        window.login = () => signInWithPopup(auth, provider);
+        window.logout = () => signOut(auth);
+        onAuthStateChanged(auth, u => {
+            user = u;
+            document.getElementById('loginBtn').style.display = u ? 'none' : 'block';
+            document.getElementById('user-info').style.display = u ? 'flex' : 'none';
+            if(u) document.getElementById('user-pic').src = u.photoURL;
+        });
+
+        // CHAT
+        window.sendChat = async () => {
+            const i = document.getElementById('chat-input');
+            if(user && i.value) {
+                await addDoc(collection(db, "chat"), { text: i.value, user: user.displayName, createdAt: new Date() });
+                i.value = "";
+            }
+        };
+        onSnapshot(query(collection(db, "chat"), orderBy("createdAt", "asc"), limit(50)), s => {
+            const w = document.getElementById('chat-window');
+            w.innerHTML = "";
+            s.forEach(d => w.innerHTML += `<div class="chat-msg"><b>${d.data().user}:</b> ${d.data().text}</div>`);
+            w.scrollTop = w.scrollHeight;
+        });
+
+        // UPLOAD & FEED
+        window.uploadArt = async (i) => {
+            if(!user) return alert("Logue!");
+            const f = i.files[0];
+            const r = ref(storage, `mural/${Date.now()}`);
+            await uploadBytes(r, f);
+            const url = await getDownloadURL(r);
+            await addDoc(collection(db, "posts"), { url, author: user.displayName, type: f.type.includes('video') ? 'video' : 'image', createdAt: new Date() });
+        };
+        onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc")), s => {
+            const f = document.getElementById('feed'); f.innerHTML = "";
+            s.forEach(d => {
+                const p = d.data();
+                const m = p.type === 'video' ? `<video src="${p.url}" controls></video>` : `<img src="${p.url}">`;
+                f.innerHTML += `<div class="card"><div style="padding:10px; color:var(--neon-green)">@${p.author}</div>${m}</div>`;
+            });
+        });
+
+        // RÁDIO & WHATSAPP
+        window.toggleAudio = () => {
+            const a = document.getElementById('audio');
