@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>União e Xarp | O Point da Rua</title>
-    <!-- Script do Supabase para Banco de Dados e Realtime -->
-    <script src="https://jsdelivr.net"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
         /* Estilo Brutalista / Cultura de Rua */
-        @import url('https://googleapis.com');
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Rubik:wght@400;700&display=swap');
 
         * {
             margin: 0;
@@ -45,7 +46,7 @@
             left: 0;
             width: 100%;
             height: 15px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,0V50c50,20,100,20,150,0s100-20,150,0,100,20,150,0,100-20,150,0,100,20,150,0,100-20,150,0,100,20,150,0V0Z" fill="%2300ff66"/></svg>');
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,0V50c50,20,100,20,150,0s100-20,150,0,100,20,150,0,100-20,150,0,100,20,150,0,100-20,150,0,100,20,150,0V0Z" fill="%2300ff66"/></svg>');
         }
 
         .logo {
@@ -170,6 +171,11 @@
             margin-bottom: 5px;
         }
 
+        .mural-text {
+            font-size: 0.95rem;
+            color: #bbb;
+        }
+
         /* Rádio Flutuante Fixa Embaixo */
         .radio-footer {
             position: fixed;
@@ -219,12 +225,17 @@
             margin-bottom: 12px;
             line-height: 1.4;
             font-size: 0.95rem;
+            word-break: break-all;
         }
 
         .chat-user {
-            color: #ff0055;
+            color: #00ff66;
             font-weight: bold;
             margin-right: 5px;
+        }
+
+        .chat-user.me {
+            color: #ff0055;
         }
 
         /* Caixa de Fortalecimento via Pix */
@@ -279,7 +290,6 @@
 
     <div class="container">
         
-        <!-- SEÇÃO DE FORTALECIMENTO (PIX) -->
         <div class="pix-section">
             <div style="display: flex; align-items: center; gap: 15px; text-align: left;">
                 <span style="font-size: 2.5rem;">💸</span>
@@ -296,7 +306,6 @@
             </div>
         </div>
         
-        <!-- COLUNA DA ESQUERDA: MURAL DA COMUNIDADE -->
         <main class="section-box">
             <div class="section-title">🎨 MURAL DAS RUAS (POSTAR FOTO/VÍDEO)</div>
             
@@ -308,222 +317,220 @@
             </div>
 
             <div class="mural-grid" id="mural-feed">
-                <!-- Posts entram aqui automaticamente -->
-            </div>
+                </div>
         </main>
 
-        <!-- COLUNA DA DIREITA: CHAT EM TEMPO REAL -->
         <aside class="section-box">
             <div class="section-title">💬 CHAT DA CREW</div>
             <div class="chat-container">
-            margin-bottom: 12px;
-            font-family: inherit;
-        }
-
-        .post-form input:focus, .post-form textarea:focus {
-            border-color: #ff0055;
-            outline: none;
-        }
-
-        .btn-spray {
-            background: #ff0055;
-            color: #fff;
-            font-family: 'Permanent Marker', cursive;
-            font-size: 1.3rem;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 6px;
-            cursor: pointer;
-            box-shadow: 4px 4px 0px #00ff66;
-            transition: 0.1s ease-in;
-        }
-
-        .btn-spray:active {
-            transform: translate(3px, 3px);
-            box-shadow: 1px 1px 0px #00ff66;
-        }
-
-        /* Feed do Mural */
-        .mural-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .mural-card {
-            background: #161616;
-            border: 2px solid #222;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: 0.2s;
-        }
-
-        .mural-card:hover {
-            border-color: #00ff66;
-        }
-
-        .mural-card img, .mural-card video {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            border-bottom: 3px solid #ff0055;
-        }
-
-        .mural-info {
-            padding: 15px;
-        }
-
-        .mural-user {
-            color: #00ff66;
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-        }
-
-        /* Rádio Flutuante Fixa Embaixo */
-        .radio-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #000;
-            border-top: 4px solid #ff0055;
-            padding: 15px 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 1000;
-            box-shadow: 0 -5px 25px rgba(255,0,85,0.2);
-        }
-
-        .radio-details h3 {
-            color: #ff0055;
-            font-family: 'Permanent Marker', cursive;
-            font-size: 1.5rem;
-        }
-
-        .radio-details p {
-            color: #00ff66;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        /* Chat do Crew */
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 450px;
-        }
-
-        .chat-messages {
-            flex-grow: 1;
-            background: #111;
-            border: 2px solid #222;
-            padding: 15px;
-            overflow-y: auto;
-            border-radius: 6px;
-            margin-bottom: 10px;
-        }
-
-        .chat-row {
-            margin-bottom: 12px;
-            line-height: 1.4;
-            font-size: 0.95rem;
-        }
-
-        .chat-user {
-            color: #ff0055;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-
-        /* Caixa de Fortalecimento via Pix */
-        .pix-section {
-            grid-column: 1 / -1; 
-            background: #000; 
-            border: 3px dashed #ff0055; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            gap: 20px; 
-            padding: 20px 30px; 
-            margin-top: -10px;
-            margin-bottom: 10px;
-            border-radius: 12px;
-        }
-
-        .pix-box {
-            background: #111; 
-            border: 2px solid #ff0055; 
-            padding: 10px 20px; 
-            font-family: monospace; 
-            font-size: 1.2rem; 
-            color: #00ff66; 
-            font-weight: bold; 
-            border-radius: 6px; 
-            letter-spacing: 0.5px; 
-            box-shadow: 3px 3px 0px #fff;
-            cursor: pointer;
-            transition: 0.1s;
-        }
-
-        .pix-box:active {
-            transform: translate(2px, 2px);
-            box-shadow: 1px 1px 0px #fff;
-        }
-
-        /* Responsivo */
-        @media (max-width: 900px) {
-            .container { grid-template-columns: 1fr; }
-            .radio-footer { flex-direction: column; text-align: center; gap: 15px; }
-            .pix-section { flex-direction: column; text-align: center; }
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="logo">União e Xarp</div>
-        <div class="tagline">O Point Oficial do Grafite, Rap, Reggae & MPB</div>
-    </header>
-
-    <div class="container">
-        
-        <!-- SEÇÃO DE FORTALECIMENTO (PIX) -->
-        <div class="pix-section">
-            <div style="display: flex; align-items: center; gap: 15px; text-align: left;">
-                <span style="font-size: 2.5rem;">💸</span>
-                <div>
-                    <h3 style="font-family: 'Permanent Marker', cursive; color: #00ff66; font-size: 1.6rem; margin-bottom: 5px;">FORTALECE A BANCA (PIX)</h3>
-                    <p style="color: #aaa; font-size: 0.95rem;">Ajude a manter a rádio 24h online e o servidor do muro de pé. Dá um clique na chave para copiar!</p>
+                <div class="chat-messages" id="chat-box">
+                    </div>
+                <div class="post-form" style="display: flex; gap: 10px;">
+                    <input type="text" id="chat-msg" placeholder="Manda a visão..." onkeydown="if(event.key === 'Enter') enviarMensagem()">
+                    <button class="btn-spray" style="font-size: 1rem; padding: 5px 15px;" onclick="enviarMensagem()">💥</button>
                 </div>
             </div>
-            <div style="text-align: right;">
-                <span style="color: #fff; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px;">Chave Pix E-mail:</span>
-                <div class="pix-box" onclick="copiarPix()">
-                    uniaoexarp@gmail.com
-                </div>
-            </div>
+        </aside>
+
+    </div> <div class="radio-footer">
+        <div class="radio-details">
+            <h3>📻 RÁDIO UNIÃO E XARP</h3>
+            <p id="current-track">🔴 No Ar: Racionais MC's - Da Ponte Pra Cá</p>
         </div>
+        <audio controls src="https://SUA_URL_DE_STREAMING_AQUI" style="filter: invert(1); max-width: 100%;"></audio>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURAÇÕES DO SUPABASE
+        // Subustitua com as credenciais do seu projeto do Supabase
+        // ==========================================
+        const SUPABASE_URL = "https://SEU_PROJETO.supabase.co";
+        const SUPABASE_ANON_KEY = "SUA_CHAVE_ANON_DO_SUPABASE";
         
-        <!-- COLUNA DA ESQUERDA: MURAL DA COMUNIDADE -->
-        <main class="section-box">
-            <div class="section-title">🎨 MURAL DAS RUAS (POSTAR FOTO/VÍDEO)</div>
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Guarda o vulgo gerado ou digitado no chat para não ficar pedindo toda hora
+        let meuVulgo = localStorage.getItem('vulgo') || "Anonimo_" + Math.floor(Math.random() * 1000);
+
+        // ==========================================
+        // INICIALIZAÇÃO / CARREGAMENTO DE DADOS
+        // ==========================================
+        window.onload = async () => {
+            document.getElementById('mural-tag').value = localStorage.getItem('vulgo') || '';
+            carregarMural();
+            carregarChat();
+            inscreverTempoReal();
+        };
+
+        // Salva o vulgo localmente quando o usuário digita no mural
+        document.getElementById('mural-tag').addEventListener('input', (e) => {
+            localStorage.setItem('vulgo', e.target.value);
+            meuVulgo = e.target.value;
+        });
+
+        // ==========================================
+        // FUNÇÃO DE COPIAR PIX
+        // ==========================================
+        function copiarPix() {
+            const textoPix = "uniaoexarp@gmail.com";
+            navigator.clipboard.writeText(textoPix).then(() => {
+                alert("Chave Pix copiada! Fortalece a banca! 🕊️👊");
+            });
+        }
+
+        // ==========================================
+        // LÓGICA DO MURAL (POSTS COM MÍDIA)
+        // ==========================================
+        async function carregarMural() {
+            const { data, error } = await supabase
+                .from('mural')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) return console.error(error);
             
-            <div class="post-form">
-                <input type="text" id="mural-tag" placeholder="Seu Vulgo / Tag (Ex: Grapixo_ZN)" required>
-                <textarea id="mural-legenda" placeholder="Qual é a fita? Onde foi o rolê? Qual tinta usou?" rows="3"></textarea>
-                <input type="file" id="mural-file" accept="image/*,video/*" style="border: none; padding: 0;">
-                <button class="btn-spray" onclick="enviarMural()">Agitar o Spray 💨</button>
-            </div>
+            const feed = document.getElementById('mural-feed');
+            feed.innerHTML = '';
 
-            <div class="mural-grid" id="mural-feed">
-                <!-- Posts entram aqui automaticamente -->
-            </div>
-        </main>
+            data.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'mural-card';
+                
+                let mediaTag = '';
+                if(post.media_url) {
+                    if(post.media_url.endsWith('.mp4') || post.media_url.includes('video')) {
+                        mediaTag = `<video src="${post.media_url}" controls></video>`;
+                    } else {
+                        mediaTag = `<img src="${post.media_url}" alt="Role">`;
+                    }
+                }
 
-        <!-- COLUNA DA DIREITA: CHAT EM TEMPO REAL -->
-        <aside class="section-box">
-            <div class="section-title">💬 CHAT DA CREW</div>
-            <div class="chat-container">
+                card.innerHTML = `
+                    ${mediaTag}
+                    <div class="mural-info">
+                        <div class="mural-user">✍️ ${post.tag}</div>
+                        <div class="mural-text">${post.legenda}</div>
+                    </div>
+                `;
+                feed.appendChild(card);
+            });
+        }
+
+        async function enviarMural() {
+            const tag = document.getElementById('mural-tag').value.trim();
+            const legenda = document.getElementById('mural-legenda').value.trim();
+            const fileInput = document.getElementById('mural-file');
+            
+            if (!tag || !legenda) {
+                alert("Manda pelo menos o Vulgo e a Ideia do rolê!");
+                return;
+            }
+
+            let mediaUrl = null;
+
+            // Se tiver arquivo selecionado, faz o upload no bucket do Supabase Storage
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const filePath = `uploads/${fileName}`;
+
+                // ATENÇÃO: Crie um bucket público chamado 'mural_midia' no seu painel do Supabase
+                const { error: uploadError } = await supabase.storage
+                    .from('mural_midia')
+                    .upload(filePath, file);
+
+                if (uploadError) {
+                    alert('Erro no upload da mídia: ' + uploadError.message);
+                    return;
+                }
+
+                const { data } = supabase.storage.from('mural_midia').getPublicUrl(filePath);
+                mediaUrl = data.publicUrl;
+            }
+
+            // Salva dados na tabela 'mural'
+            const { error } = await supabase
+                .from('mural')
+                .insert([{ tag, legenda, media_url: mediaUrl }]);
+
+            if (error) {
+                alert('Erro ao pixar o mural: ' + error.message);
+            } else {
+                document.getElementById('mural-legenda').value = '';
+                fileInput.value = '';
+                carregarMural();
+            }
+        }
+
+        // ==========================================
+        // LÓGICA DO CHAT (MENSAGENS)
+        // ==========================================
+        async function carregarChat() {
+            const { data, error } = await supabase
+                .from('chat')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(40);
+
+            if (error) return console.error(error);
+
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = '';
+            
+            // Reverter para mostrar mensagens antigas em cima
+            data.reverse().forEach(msg => {
+                adicionarLinhaChat(msg);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function adicionarLinhaChat(msg) {
+            const chatBox = document.getElementById('chat-box');
+            const row = document.createElement('div');
+            row.className = 'chat-row';
+            
+            const isMe = msg.user === meuVulgo ? 'me' : '';
+
+            row.innerHTML = `<span class="chat-user ${isMe}">${msg.user}:</span> ${msg.text}`;
+            chatBox.appendChild(row);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function enviarMensagem() {
+            const input = document.getElementById('chat-msg');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            const { error } = await supabase
+                .from('chat')
+                .insert([{ user: meuVulgo, text: text }]);
+
+            if (error) console.error(error);
+            input.value = '';
+        }
+
+        // ==========================================
+        // CONFIGURAÇÃO DO REALTIME (TEMPO REAL)
+        // Ative o 'Replication' no painel das tabelas do Supabase
+        // ==========================================
+        function inscreverTempoReal() {
+            supabase
+                .channel('public:chat')
+                .on('postgres_changes', { event: 'INSERT', scheme: 'public', table: 'chat' }, payload => {
+                    adicionarLinhaChat(payload.new);
+                })
+                .subscribe();
+
+            supabase
+                .channel('public:mural')
+                .on('postgres_changes', { event: 'INSERT', scheme: 'public', table: 'mural' }, payload => {
+                    carregarMural(); // Recarrega o feed quando alguém posta algo novo
+                })
+                .subscribe();
+        }
+    </script>
+</body>
+</html>
