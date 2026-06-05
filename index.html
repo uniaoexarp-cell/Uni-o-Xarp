@@ -26,7 +26,7 @@
             background-size: 8px 8px, 16px 16px;
             color: #eceff1;
             font-family: 'Rubik', sans-serif;
-            padding-bottom: 120px;
+            padding-bottom: 140px;
         }
 
         /* Topo Estilo Bombing */
@@ -332,30 +332,30 @@
             </div>
         </aside>
 
-    </div> <div class="radio-footer">
+    </div>
+
+    <div class="radio-footer">
         <div class="radio-details">
             <h3>📻 RÁDIO UNIÃO E XARP</h3>
-            <p id="current-track">🔴 No Ar: Racionais MC's - Da Ponte Pra Cá</p>
+            <p id="current-track">🔴 No Ar: Transmissão 24h (Grafite & Rap Crew)</p>
         </div>
-        <audio controls src="https://SUA_URL_DE_STREAMING_AQUI" style="filter: invert(1); max-width: 100%;"></audio>
+        <audio controls src="https://stream.zeno.fm/f973u8679v8uv" style="filter: invert(1); max-width: 100%;"></audio>
     </div>
 
     <script>
-        // ==========================================
+        // ========================================================
         // CONFIGURAÇÕES DO SUPABASE
-        // Subustitua com as credenciais do seu projeto do Supabase
-        // ==========================================
+        // Substitua com as credenciais reais do seu painel Supabase
+        // ========================================================
         const SUPABASE_URL = "https://SEU_PROJETO.supabase.co";
         const SUPABASE_ANON_KEY = "SUA_CHAVE_ANON_DO_SUPABASE";
         
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Guarda o vulgo gerado ou digitado no chat para não ficar pedindo toda hora
+        // Define um vulgo temporário caso o usuário não digite nada no mural
         let meuVulgo = localStorage.getItem('vulgo') || "Anonimo_" + Math.floor(Math.random() * 1000);
 
-        // ==========================================
-        // INICIALIZAÇÃO / CARREGAMENTO DE DADOS
-        // ==========================================
+        // Inicialização automática do site
         window.onload = async () => {
             document.getElementById('mural-tag').value = localStorage.getItem('vulgo') || '';
             carregarMural();
@@ -363,15 +363,13 @@
             inscreverTempoReal();
         };
 
-        // Salva o vulgo localmente quando o usuário digita no mural
+        // Escuta e salva localmente o vulgo enquanto o usuário digita
         document.getElementById('mural-tag').addEventListener('input', (e) => {
             localStorage.setItem('vulgo', e.target.value);
             meuVulgo = e.target.value;
         });
 
-        // ==========================================
-        // FUNÇÃO DE COPIAR PIX
-        // ==========================================
+        // Copiar Chave Pix
         function copiarPix() {
             const textoPix = "uniaoexarp@gmail.com";
             navigator.clipboard.writeText(textoPix).then(() => {
@@ -379,9 +377,9 @@
             });
         }
 
-        // ==========================================
-        // LÓGICA DO MURAL (POSTS COM MÍDIA)
-        // ==========================================
+        // ========================================================
+        // SISTEMA DO MURAL (CARREGAR E ENVIAR COM MÍDIA)
+        // ========================================================
         async function carregarMural() {
             const { data, error } = await supabase
                 .from('mural')
@@ -423,26 +421,26 @@
             const fileInput = document.getElementById('mural-file');
             
             if (!tag || !legenda) {
-                alert("Manda pelo menos o Vulgo e a Ideia do rolê!");
+                alert("Manda o seu Vulgo e o relato do rolê!");
                 return;
             }
 
             let mediaUrl = null;
 
-            // Se tiver arquivo selecionado, faz o upload no bucket do Supabase Storage
+            // Faz upload de fotos/vídeos se houver arquivo selecionado
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${Math.random()}.${fileExt}`;
                 const filePath = `uploads/${fileName}`;
 
-                // ATENÇÃO: Crie um bucket público chamado 'mural_midia' no seu painel do Supabase
+                // Crie um bucket público chamado 'mural_midia' no Supabase
                 const { error: uploadError } = await supabase.storage
                     .from('mural_midia')
                     .upload(filePath, file);
 
                 if (uploadError) {
-                    alert('Erro no upload da mídia: ' + uploadError.message);
+                    alert('Erro no envio da mídia: ' + uploadError.message);
                     return;
                 }
 
@@ -450,7 +448,6 @@
                 mediaUrl = data.publicUrl;
             }
 
-            // Salva dados na tabela 'mural'
             const { error } = await supabase
                 .from('mural')
                 .insert([{ tag, legenda, media_url: mediaUrl }]);
@@ -464,9 +461,9 @@
             }
         }
 
-        // ==========================================
-        // LÓGICA DO CHAT (MENSAGENS)
-        // ==========================================
+        // ========================================================
+        // SISTEMA DO CHAT DA CREW
+        // ========================================================
         async function carregarChat() {
             const { data, error } = await supabase
                 .from('chat')
@@ -479,11 +476,13 @@
             const chatBox = document.getElementById('chat-box');
             chatBox.innerHTML = '';
             
-            // Reverter para mostrar mensagens antigas em cima
             data.reverse().forEach(msg => {
                 adicionarLinhaChat(msg);
             });
-            chatBox.scrollTop = chatBox.scrollHeight;
+            
+            setTimeout(() => {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 100);
         }
 
         function adicionarLinhaChat(msg) {
@@ -512,22 +511,22 @@
             input.value = '';
         }
 
-        // ==========================================
-        // CONFIGURAÇÃO DO REALTIME (TEMPO REAL)
-        // Ative o 'Replication' no painel das tabelas do Supabase
-        // ==========================================
+        // ========================================================
+        // ESCUTA EM TEMPO REAL (REALTIME)
+        // Lembre-se de ativar a replicação (Replication) das tabelas no painel
+        // ========================================================
         function inscreverTempoReal() {
             supabase
                 .channel('public:chat')
-                .on('postgres_changes', { event: 'INSERT', scheme: 'public', table: 'chat' }, payload => {
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat' }, payload => {
                     adicionarLinhaChat(payload.new);
                 })
                 .subscribe();
 
             supabase
                 .channel('public:mural')
-                .on('postgres_changes', { event: 'INSERT', scheme: 'public', table: 'mural' }, payload => {
-                    carregarMural(); // Recarrega o feed quando alguém posta algo novo
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mural' }, payload => {
+                    carregarMural();
                 })
                 .subscribe();
         }
