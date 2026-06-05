@@ -231,6 +231,7 @@
         .chat-user { color: #ffd600; font-weight: bold; margin-right: 6px; }
         .chat-user.me { color: #00cc44; }
 
+        /* Rodapé com Estética de Rádio Comunitária */
         .radio-footer {
             position: fixed;
             bottom: 0;
@@ -290,20 +291,41 @@
         </aside>
     </div>
 
-    <!-- PLAYER HUNTER FM RAP -->
+    <!-- PLAYER DE ÁUDIO BLINDADO ANTIQUEDA -->
     <div class="radio-footer">
         <div class="radio-details">
             <h3>📻 RÁDIO UNIÃO ROOTS</h3>
-            <p>🔴 No Ar: Hunter FM Rap & Cultura 24h</p>
+            <p>🔴 No Ar: Transmissão Digital 24h</p>
         </div>
-        <audio controls preload="none" src="https://live.hunter.fm/rap_high" style="filter: invert(1); max-width: 100%;"></audio>
+        
+        <audio controls style="filter: invert(1); max-width: 100%;">
+            <!-- Link principal (Hunter FM Rap) -->
+            <source src="https://live.hunter.fm/rap_high" type="audio/mpeg">
+            <!-- Link Reserva 1 (Reggae Nacional) -->
+            <source src="https://stream.zeno.fm/088m9v0v40duv" type="audio/mpeg">
+            <!-- Link Reserva 2 (Rádio USP Cultura) -->
+            <source src="https://rusp.suicid.com.br/usp-937-sp.mp3" type="audio/mpeg">
+            Seu navegador não suporta o player de áudio.
+        </audio>
     </div>
 
     <script>
-        // BANCO DE DADOS LOCAL AUTOMÁTICO (Substitui o Supabase perfeitamente)
+        // BANCO DE DADOS LOCAL AUTOMÁTICO com Artes de Rua Reais (Substitui o Supabase)
         let dbMural = JSON.parse(localStorage.getItem('local_mural')) || [
-            { id: 1, tag: "Dada_Roots", legenda: "Muro finalizado na Zona Leste! Respeito e união nas ruas 🎨✌️", media_url: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=500", likes: 14 },
-            { id: 2, tag: "Sampa_Graff", legenda: "Rolê roots na madrugada rendeu essa folha. Salve a banca!", media_url: "https://images.unsplash.com/photo-1561055657-b9e0bf0fa360?w=500", likes: 8 }
+            { 
+                id: 1, 
+                tag: "Dada_Roots", 
+                legenda: "Muro finalizado na Zona Leste! Respeito, cores e união nas ruas 🎨✌️", 
+                media_url: "https://images.unsplash.com/photo-1569003339405-ea396a5a8a90?w=600&auto=format&fit=crop", 
+                likes: 14 
+            },
+            { 
+                id: 2, 
+                tag: "Sampa_Graff", 
+                legenda: "Rolê na madrugada rendeu esse bomb cabuloso. Salve a banca!", 
+                media_url: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop", 
+                likes: 8 
+            }
         ];
 
         let dbComentarios = JSON.parse(localStorage.getItem('local_comentarios')) || [
@@ -313,7 +335,7 @@
 
         let dbChat = JSON.parse(localStorage.getItem('local_chat')) || [
             { user: "Grafite_011", text: "Salve rapaziada da União!" },
-            { user: "Dada_Roots", text: "A rádio Hunter FM tá soltando só os sons pesados hoje." },
+            { user: "Dada_Roots", text: "A rádio tá soltando só os sons pesados hoje." },
             { user: "Xarp_Mestre", text: "Mais tarde tem bomb no centro?" }
         ];
 
@@ -322,7 +344,7 @@
         window.onload = () => {
             document.getElementById('mural-tag').value = localStorage.getItem('vulgo') || '';
             atualizarTudo();
-            ligarSimuladorCrew(); // Ativa as interações automáticas para impressionar a banca
+            ligarSimuladorCrew();
         };
 
         document.getElementById('mural-tag').addEventListener('input', (e) => {
@@ -341,14 +363,11 @@
             carregarChat();
         }
 
-        // ========================================================
         // ENGINE DO MURAL
-        // ========================================================
         function carregarMural() {
             const feed = document.getElementById('mural-feed');
             feed.innerHTML = '';
 
-            // Exibe do mais novo para o mais antigo
             [...dbMural].reverse().forEach(post => {
                 const card = document.createElement('div');
                 card.className = 'mural-card';
@@ -414,7 +433,6 @@
 
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                // Cria um link local temporário para fotos/vídeos rodarem instantaneamente na tela
                 novoPost.media_url = URL.createObjectURL(file);
             }
 
@@ -440,24 +458,17 @@
             const txt = inputElement.value.trim();
             if(!txt) return;
 
-            dbComentarios.push({
-                post_id: postId,
-                user: meuVulgo,
-                text: txt
-            });
-            
+            dbComentarios.push({ post_id: postId, user: meuVulgo, text: txt });
             salvarDados();
             inputElement.value = '';
             carregarMural();
         }
 
         function compartilharPost() {
-            alert("Link da arte copiado para a área de transferência! Espalha a vibe! 📲🔥");
+            alert("Link copiado para a área de transferência! 📲🔥");
         }
 
-        // ========================================================
         // ENGINE DO CHAT
-        // ========================================================
         function carregarChat() {
             const chatBox = document.getElementById('chat-box');
             chatBox.innerHTML = '';
@@ -482,20 +493,17 @@
             carregarChat();
         }
 
-        // ========================================================
-        // ROBÔ SIMULADOR (Faz o site parecer vivo na apresentação)
-        // ========================================================
+        // ROBÔ SIMULADOR (Efeito "Site Vivo" na apresentação)
         function ligarSimuladorCrew() {
             const robos = ["Luz_Roots", "Grafite_011", "Rasta_Sampa", "Mestre_Bomb", "Vibe_Rua"];
             const mensagens = [
-                "Essa rádio Hunter FM tá insana! 🔊🔥",
+                "Essa rádio tá insana! Som pesado! 🔊🔥",
                 "Acabei de mandar uma tag no mural, olhem lá!",
                 "Arte salva vidas, rapaziada. Orgulho dessa crew.",
                 "Alguém na ativa pra riscar hoje?",
                 "Vibe positiva para todo mundo hoje!"
             ];
 
-            // A cada 18 segundos, um usuário fantasma manda mensagem ou curte algo
             setInterval(() => {
                 const acao = Math.random() > 0.4 ? 'chat' : 'curtir';
                 const roboAleatorio = robos[Math.floor(Math.random() * robos.length)];
@@ -511,7 +519,7 @@
                     carregarMural();
                 }
                 salvarDados();
-            }, 18000);
+            }, 15000); // Executa interações simuladas a cada 15 segundos
         }
     </script>
 </body>
