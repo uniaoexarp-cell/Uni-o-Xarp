@@ -278,7 +278,7 @@
             width: 100%;
             background: #000;
             border-top: 5px solid #ffd600;
-            padding: 18px 35px;
+            padding: 15px 35px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -288,9 +288,29 @@
         .radio-details h3 { color: #e60000; font-family: 'Permanent Marker', cursive; font-size: 1.6rem; letter-spacing: 1px; }
         .radio-details p { color: #00cc44; font-size: 0.95rem; font-weight: bold; margin-top: 2px; }
 
+        /* Controles lado a lado com botão alternador */
+        .audio-controls-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn-mudar-estacao {
+            background: #ffd600;
+            color: #000;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-mudar-estacao:hover { background: #e60000; color: #fff; }
+
         @media (max-width: 900px) {
             .container { grid-template-columns: 1fr; }
             .radio-footer { flex-direction: column; text-align: center; gap: 15px; }
+            .audio-controls-wrapper { flex-direction: column; width: 100%; }
         }
     </style>
 </head>
@@ -343,19 +363,17 @@
         </aside>
     </div>
 
-    <!-- PLAYER DE ÁUDIO CORRIGIDO PARA HTTPS / VERCEL -->
+    <!-- PLAYER DE ÁUDIO REESTRUTURADO SEM INTERRUPÇÃO -->
     <div class="radio-footer">
         <div class="radio-details">
             <h3>📻 RÁDIO UNIÃO ROOTS</h3>
-            <p id="radio-status">🔴 No Ar: Transmissão Digital 24h</p>
+            <p id="radio-status">🔄 Sintonizando estação principal...</p>
         </div>
         
-        <audio id="radio-audio" autoplay controls crossorigin="anonymous" style="filter: invert(1); max-width: 100%;">
-            <source src="https://live.hunter.fm/rap_high" type="audio/mpeg">
-            <source src="https://stream.zenolive.com/088m9v0v40duv" type="audio/mpeg">
-            <source src="https://shoutcast.mixfm.com.br:8014/stream" type="audio/mpeg">
-            Seu navegador não suporta o player de áudio.
-        </audio>
+        <div class="audio-controls-wrapper">
+            <audio id="radio-audio" autoplay controls crossorigin="anonymous" style="filter: invert(1); max-width: 100%;"></audio>
+            <button class="btn-mudar-estacao" onclick="proximaEstacao()">🔄 Mudar Estação</button>
+        </div>
     </div>
 
     <script>
@@ -391,11 +409,20 @@
         let meuVulgo = localStorage.getItem('vulgo') || "Roots_" + Math.floor(Math.random() * 1000);
         const chavePixValida = "uniaoexarp@gmail.com"; 
 
+        // LISTA DE LINKS HTTPS REAIS E ALTAMENTE ESTÁVEIS (RAP E REGGAE)
+        const estacoesDeRadio = [
+            { nome: "Estação 1: Rap Nacional", url: "https://live.hunter.fm/rap_high" },
+            { nome: "Estação 2: Reggae Roots", url: "https://stream.zeno.fm/088m9v0v40duv" },
+            { nome: "Estação 3: Hip-Hop Classics", url: "https://stream.zeno.fm/9sn7919g90duv" }
+        ];
+        let indiceEstacaoAtual = 0;
+        let timeoutVerificacaoStream;
+
         window.onload = () => {
             document.getElementById('mural-tag').value = localStorage.getItem('vulgo') || '';
             atualizarTudo();
             ligarSimuladorCrew();
-            ativarAutoplayETracagemRadio();
+            iniciarMotorRadio();
         };
 
         document.getElementById('mural-tag').addEventListener('input', (e) => {
@@ -414,37 +441,65 @@
             carregarChat();
         }
 
-        // SISTEMA DA RÁDIO BLINDADO CONTRA CAÍDAS E ERROS DE SSL
-        function ativarAutoplayETracagemRadio() {
+        // MOTOR REESTRUTURADO DO PLAYER DE ÁUDIO DINÂMICO
+        function iniciarMotorRadio() {
             const audio = document.getElementById('radio-audio');
-            const statusText = document.getElementById('radio-status');
             
-            let playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    statusText.innerText = "🟢 Sintonizado: Conexão Segura Ativa";
-                }).catch(error => {
-                    statusText.innerText = "📻 Clique em qualquer lugar para sintonizar a rádio";
-                    const forcarSom = () => {
-                        audio.play().then(() => {
-                            statusText.innerText = "🟢 Sintonizado: Conexão Segura Ativa";
-                            document.removeEventListener('click', forcarSom);
-                            document.removeEventListener('touchstart', forcarSom);
-                        }).catch(e => console.log("Aguardando stream ativo..."));
-                    };
-                    document.addEventListener('click', forcarSom);
-                    document.addEventListener('touchstart', forcarSom);
-                });
-            }
+            // Define a primeira estação da lista
+            carregarFonteEstacao(indiceEstacaoAtual);
 
-            // Se o link do stream der erro de carregamento, pula para o link reserva automaticamente
-            audio.addEventListener('error', function() {
-                console.log("Stream atual offline ou bloqueado por SSL. Alternando fonte...");
-                statusText.innerText = "🔄 Reconectando ao servidor reserva...";
-                audio.load();
-                audio.play().catch(e => console.log("Aguardando clique para reativar backup."));
-            }, true);
+            // Ouvinte para erros de carregamento na rádio atual
+            audio.addEventListener('error', () => {
+                console.log("Erro na estação atual. Pulando para a reserva...");
+                proximaEstacao();
+            });
+
+            // Monitor inteligente de travamento de reprodução
+            audio.addEventListener('waiting', () => {
+                clearTimeout(timeoutVerificacaoStream);
+                timeoutVerificacaoStream = setTimeout(() => {
+                    if (audio.paused === false && audio.currentTime === 0) {
+                        console.log("Estação travada em buffering inicial. Rotacionando...");
+                        proximaEstacao();
+                    }
+                }, 4000); // Se travar por 4 segundos sem soltar som, roda a lista
+            });
+
+            // Gatilho global de clique na tela para forçar o autoplay do navegador
+            const forcarPlayPorInteracao = () => {
+                audio.play().then(() => {
+                    removerGatilhosInteracao();
+                }).catch(e => console.log("Aguardando clique válido para liberar áudio."));
+            };
+
+            document.addEventListener('click', forcarPlayPorInteracao);
+            document.addEventListener('touchstart', forcarPlayPorInteracao);
+
+            function removerGatilhosInteracao() {
+                document.removeEventListener('click', forcarPlayPorInteracao);
+                document.removeEventListener('touchstart', forcarPlayPorInteracao);
+            }
+        }
+
+        function carregarFonteEstacao(indice) {
+            const audio = document.getElementById('radio-audio');
+            const status = document.getElementById('radio-status');
+            const estacao = estacoesDeRadio[indice];
+
+            audio.src = estacao.url;
+            status.innerText = "🎵 Sintonizando: " + estacao.nome;
+            audio.load();
+            
+            audio.play().then(() => {
+                status.innerText = "🟢 No Ar • " + estacao.nome;
+            }).catch(err => {
+                status.innerText = "📻 Toque na tela para liberar o som (" + estacao.nome + ")";
+            });
+        }
+
+        function proximaEstacao() {
+            indiceEstacaoAtual = (indiceEstacaoAtual + 1) % estacoesDeRadio.length;
+            carregarFonteEstacao(indiceEstacaoAtual);
         }
 
         function copiarPix() {
@@ -612,7 +667,7 @@
             }
         }
 
-        // SISTEMA DE EXCLUSÃO TRAVADO POR SENHA DE ADMINISTRADOR
+        // SISTEMA DE EXCLUSÃO TRAVADO POR SENHA DE ADMINISTRADOR (1405)
         function apagarPost(id) {
             const senhaDigitada = prompt("⚠️ SISTEMA PROTEGIDO\nDigite a senha do ADM para excluir esta publicação:");
             
