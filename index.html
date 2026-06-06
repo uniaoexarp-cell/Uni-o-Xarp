@@ -62,7 +62,6 @@
             text-shadow: 1px 1px 4px #000;
         }
 
-        /* Destaque do Criador */
         .criador-tag {
             font-family: 'Permanent Marker', cursive;
             font-size: 1.1rem;
@@ -244,7 +243,6 @@
         .chat-user { color: #ffd600; font-weight: bold; margin-right: 6px; }
         .chat-user.me { color: #00cc44; }
 
-        /* Caixa de Pix Estilizada */
         .pix-box {
             text-align: center;
             background: #131614;
@@ -301,7 +299,6 @@
     <header>
         <div class="logo">União e Xarp</div>
         <div class="tagline">Grafite, Rap, Roots Reggae & Cultura de Rua</div>
-        <!-- VULGO DO CRIADOR INSERIDO EXPLICITAMENTE -->
         <div class="criador-tag">⚡ Criado por: Peralta da galera P.D.M & A.S ⚡</div>
     </header>
 
@@ -346,23 +343,23 @@
         </aside>
     </div>
 
-    <!-- PLAYER DE ÁUDIO COM ID E AUTOPLAY ATIVADO -->
+    <!-- PLAYER DE ÁUDIO CORRIGIDO PARA HTTPS / VERCEL -->
     <div class="radio-footer">
         <div class="radio-details">
             <h3>📻 RÁDIO UNIÃO ROOTS</h3>
-            <p>🔴 No Ar: Transmissão Digital 24h</p>
+            <p id="radio-status">🔴 No Ar: Transmissão Digital 24h</p>
         </div>
         
-        <audio id="radio-audio" autoplay controls style="filter: invert(1); max-width: 100%;">
+        <audio id="radio-audio" autoplay controls crossorigin="anonymous" style="filter: invert(1); max-width: 100%;">
             <source src="https://live.hunter.fm/rap_high" type="audio/mpeg">
-            <source src="https://stream.zeno.fm/088m9v0v40duv" type="audio/mpeg">
-            <source src="https://rusp.suicid.com.br/usp-937-sp.mp3" type="audio/mpeg">
+            <source src="https://stream.zenolive.com/088m9v0v40duv" type="audio/mpeg">
+            <source src="https://shoutcast.mixfm.com.br:8014/stream" type="audio/mpeg">
             Seu navegador não suporta o player de áudio.
         </audio>
     </div>
 
     <script>
-        // BANCO DE DADOS LOCAL AUTOMÁTICO com Imagens Reais de Grafite de Rua Urbano
+        // BANCO DE DADOS LOCAL AUTOMÁTICO
         let dbMural = JSON.parse(localStorage.getItem('local_mural')) || [
             { 
                 id: 1, 
@@ -398,7 +395,7 @@
             document.getElementById('mural-tag').value = localStorage.getItem('vulgo') || '';
             atualizarTudo();
             ligarSimuladorCrew();
-            ativarAutoplayInteligente();
+            ativarAutoplayETracagemRadio();
         };
 
         document.getElementById('mural-tag').addEventListener('input', (e) => {
@@ -417,42 +414,51 @@
             carregarChat();
         }
 
-        // SISTEMA DE AUTOPLAY SEGURO ANTI-BLOQUEIO
-        function activarAutoplayInteligente() {
+        // SISTEMA DA RÁDIO BLINDADO CONTRA CAÍDAS E ERROS DE SSL
+        function ativarAutoplayETracagemRadio() {
             const audio = document.getElementById('radio-audio');
+            const statusText = document.getElementById('radio-status');
+            
             let playPromise = audio.play();
             
             if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    const dispararSom = () => {
+                playPromise.then(() => {
+                    statusText.innerText = "🟢 Sintonizado: Conexão Segura Ativa";
+                }).catch(error => {
+                    statusText.innerText = "📻 Clique em qualquer lugar para sintonizar a rádio";
+                    const forcarSom = () => {
                         audio.play().then(() => {
-                            document.removeEventListener('click', dispararSom);
-                            document.removeEventListener('touchstart', dispararSom);
-                        }).catch(e => console.log("A rádio ainda aguarda interação ativa."));
+                            statusText.innerText = "🟢 Sintonizado: Conexão Segura Ativa";
+                            document.removeEventListener('click', forcarSom);
+                            document.removeEventListener('touchstart', forcarSom);
+                        }).catch(e => console.log("Aguardando stream ativo..."));
                     };
-                    document.addEventListener('click', dispararSom);
-                    document.addEventListener('touchstart', dispararSom);
+                    document.addEventListener('click', forcarSom);
+                    document.addEventListener('touchstart', forcarSom);
                 });
             }
+
+            // Se o link do stream der erro de carregamento, pula para o link reserva automaticamente
+            audio.addEventListener('error', function() {
+                console.log("Stream atual offline ou bloqueado por SSL. Alternando fonte...");
+                statusText.innerText = "🔄 Reconectando ao servidor reserva...";
+                audio.load();
+                audio.play().catch(e => console.log("Aguardando clique para reativar backup."));
+            }, true);
         }
 
-        // SISTEMA DE INTERAÇÃO DO PIX
         function copiarPix() {
             navigator.clipboard.writeText(chavePixValida).then(() => {
                 const btn = document.getElementById('btn-pix-action');
                 btn.innerText = "💥 CHAVE COPIADA! SALVE!";
                 btn.style.background = "#00cc44";
                 btn.style.color = "#fff";
-                
-                alert("Chave Pix (" + chavePixValida + ") copiada com sucesso! Fortaleceu o movimento! 🎨✊");
-
+                alert("Chave Pix (" + chavePixValida + ") copiada! Fortaleceu o movimento! 🎨✊");
                 setTimeout(() => {
                     btn.innerText = "Copiar Chave Pix 📋";
                     btn.style.background = "#ffd600";
                     btn.style.color = "#000";
                 }, 4000);
-            }).catch(err => {
-                alert("Erro ao copiar automaticamente. Use a chave: " + chavePixValida);
             });
         }
 
@@ -515,7 +521,6 @@
             });
         }
 
-        // ENGINE DO MURAL REESTRUTURADA COM COMPRESSÃO AUTOMÁTICA CANVAS ANTI-QUEBRA
         function enviarMural() {
             const tag = document.getElementById('mural-tag').value.trim();
             const legenda = document.getElementById('mural-legenda').value.trim();
@@ -540,7 +545,6 @@
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
-                    // SE FOR IMAGEM, APLICA COMPRESSÃO VIA CANVAS PARA NÃO ENCHER O LOCALSTORAGE
                     if (file.type.startsWith('image/')) {
                         const img = new Image();
                         img.src = e.target.result;
@@ -549,7 +553,6 @@
                             let width = img.width;
                             let height = img.height;
                             
-                            // Redimensionamento inteligente para manter proporção dentro de 800px
                             const MAX_SIZE = 800;
                             if (width > height) {
                                 if (width > MAX_SIZE) {
@@ -568,7 +571,6 @@
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
                             
-                            // Converte em JPEG super leve comprimido (qualidade 0.7)
                             novoPost.media_url = canvas.toDataURL('image/jpeg', 0.7);
                             
                             dbMural.push(novoPost);
@@ -576,7 +578,6 @@
                             concluirEnvioMural(btnPostar, fileInput);
                         };
                     } else {
-                        // Se for vídeo mantém padrão original
                         novoPost.media_url = e.target.result;
                         dbMural.push(novoPost);
                         salvarDados();
@@ -611,12 +612,19 @@
             }
         }
 
+        // SISTEMA DE EXCLUSÃO TRAVADO POR SENHA DE ADMINISTRADOR
         function apagarPost(id) {
-            if (confirm("Tem certeza que deseja apagar essa publicação permanentemente? 🗑️")) {
-                dbMural = dbMural.filter(p => p.id !== id);
-                dbComentarios = dbComentarios.filter(c => c.post_id !== id);
-                salvarDados();
-                carregarMural();
+            const senhaDigitada = prompt("⚠️ SISTEMA PROTEGIDO\nDigite a senha do ADM para excluir esta publicação:");
+            
+            if (senhaDigitada === "1405") {
+                if (confirm("Senha correta. Deseja apagar essa publicação permanentemente do sistema? 🗑️")) {
+                    dbMural = dbMural.filter(p => p.id !== id);
+                    dbComentarios = dbComentarios.filter(c => c.post_id !== id);
+                    salvarDados();
+                    carregarMural();
+                }
+            } else if (senhaDigitada !== null) {
+                alert("❌ Acesso Negado! Senha incorreta.\nApenas o Peralta da galera P.D.M & A.S pode gerenciar as mídias.");
             }
         }
 
@@ -669,7 +677,7 @@
             carregarChat();
         }
 
-        // ROBÔ SIMULADOR (Efeito "Site Vivo" na apresentação)
+        // ROBÔ SIMULADOR
         function ligarSimuladorCrew() {
             const robos = ["Luz_Roots", "Grafite_011", "Rasta_Sampa", "Mestre_Bomb", "Vibe_Rua"];
             const mensagens = [
