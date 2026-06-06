@@ -270,7 +270,7 @@
         }
         .btn-pix:hover { background: #00cc44; color: #fff; }
 
-        /* Rodapé da Rádio */
+        /* Rodapé da Rádio Customizada */
         .radio-footer {
             position: fixed;
             bottom: 0;
@@ -278,7 +278,7 @@
             width: 100%;
             background: #000;
             border-top: 5px solid #ffd600;
-            padding: 15px 35px;
+            padding: 20px 35px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -288,29 +288,44 @@
         .radio-details h3 { color: #e60000; font-family: 'Permanent Marker', cursive; font-size: 1.6rem; letter-spacing: 1px; }
         .radio-details p { color: #00cc44; font-size: 0.95rem; font-weight: bold; margin-top: 2px; }
 
-        /* Controles lado a lado com botão alternador */
+        /* Controles Customizados à prova de falhas */
         .audio-controls-wrapper {
             display: flex;
             align-items: center;
             gap: 15px;
         }
+        
+        .btn-custom-player {
+            background: #e60000;
+            color: #fff;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.2rem;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 3px 3px 0px #fff;
+            transition: 0.1s;
+        }
+        .btn-custom-player:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px #fff; }
+
         .btn-mudar-estacao {
             background: #ffd600;
             color: #000;
             border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 11px 16px;
+            border-radius: 8px;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: 0.2s;
         }
-        .btn-mudar-estacao:hover { background: #e60000; color: #fff; }
+        .btn-mudar-estacao:hover { background: #00cc44; color: #fff; }
 
         @media (max-width: 900px) {
             .container { grid-template-columns: 1fr; }
-            .radio-footer { flex-direction: column; text-align: center; gap: 15px; }
-            .audio-controls-wrapper { flex-direction: column; width: 100%; }
+            .radio-footer { flex-direction: column; text-align: center; gap: 15px; padding: 15px; }
+            .audio-controls-wrapper { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -363,66 +378,47 @@
         </aside>
     </div>
 
-    <!-- PLAYER DE ÁUDIO REESTRUTURADO SEM INTERRUPÇÃO -->
+    <!-- PLAYER DE ÁUDIO COMPLETAMENTE BLINDADO E CUSTOMIZADO -->
     <div class="radio-footer">
         <div class="radio-details">
             <h3>📻 RÁDIO UNIÃO ROOTS</h3>
-            <p id="radio-status">🔄 Sintonizando estação principal...</p>
+            <p id="radio-status">🔴 Rádio Desligada. Dê o Play!</p>
         </div>
         
         <div class="audio-controls-wrapper">
-            <audio id="radio-audio" autoplay controls crossorigin="anonymous" style="filter: invert(1); max-width: 100%;"></audio>
+            <audio id="radio-audio" preload="none"></audio>
+            <button class="btn-custom-player" id="btn-play-pause" onclick="alternarPlayPause()">▶️ SOLTAR O SOM</button>
             <button class="btn-mudar-estacao" onclick="proximaEstacao()">🔄 Mudar Estação</button>
         </div>
     </div>
 
     <script>
-        // BANCO DE DADOS LOCAL AUTOMÁTICO
-        let dbMural = JSON.parse(localStorage.getItem('local_mural')) || [
-            { 
-                id: 1, 
-                tag: "Dada_Roots", 
-                legenda: "Muro finalizado na Zona Leste! Respeito, cores e união nas ruas 🎨✌️", 
-                media_url: "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=600&auto=format&fit=crop", 
-                likes: 14 
-            },
-            { 
-                id: 2, 
-                tag: "Sampa_Graff", 
-                legenda: "Rolê na madrugada rendeu esse bomb cabuloso. Salve a banca!", 
-                media_url: "https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?w=600&auto=format&fit=crop", 
-                likes: 8 
-            }
-        ];
-
-        let dbComentarios = JSON.parse(localStorage.getItem('local_comentarios')) || [
-            { post_id: 1, user: "Xarp_Mestre", text: "Trabalho fino demais, irmão!" },
-            { post_id: 1, user: "Vibe_Positiva", text: "Roots total 🔥" }
-        ];
-
+        // BANCO DE DADOS LOCAL ZERADO (EVITA IMAGENS DE BOLO FALSAS)
+        let dbMural = JSON.parse(localStorage.getItem('local_mural')) || [];
+        let dbComentarios = JSON.parse(localStorage.getItem('local_comentarios')) || [];
+        
         let dbChat = JSON.parse(localStorage.getItem('local_chat')) || [
-            { user: "Grafite_011", text: "Salve rapaziada da União!" },
-            { user: "Dada_Roots", text: "A rádio tá soltando só os sons pesados hoje." },
-            { user: "Xarp_Mestre", text: "Mais tarde tem bomb no centro?" }
+            { user: "Grafite_011", text: "Salve rapaziada da União! Painel tá aberto!" },
+            { user: "Peralta_ADM", text: "Rádio atualizada com servidores novos. Só soltar o som 🎚️" }
         ];
 
         let meuVulgo = localStorage.getItem('vulgo') || "Roots_" + Math.floor(Math.random() * 1000);
         const chavePixValida = "uniaoexarp@gmail.com"; 
 
-        // LISTA DE LINKS HTTPS REAIS E ALTAMENTE ESTÁVEIS (RAP E REGGAE)
+        // SERVIDORES DE STREAMING DIRETOS E ABERTOS (MAIS COMPATÍVEIS COM CELULAR)
         const estacoesDeRadio = [
-            { nome: "Estação 1: Rap Nacional", url: "https://live.hunter.fm/rap_high" },
-            { nome: "Estação 2: Reggae Roots", url: "https://stream.zeno.fm/088m9v0v40duv" },
-            { nome: "Estação 3: Hip-Hop Classics", url: "https://stream.zeno.fm/9sn7919g90duv" }
+            { nome: "Estação 1: Reggae Hits World", url: "https://stream.zeno.fm/088m9v0v40duv" },
+            { nome: "Estação 2: Hip-Hop OldSchool", url: "https://stream.zeno.fm/9sn7919g90duv" },
+            { nome: "Estação 3: BoomBap Rap", url: "https://node-31.zeno.fm/96u7a230w0duv" }
         ];
         let indiceEstacaoAtual = 0;
-        let timeoutVerificacaoStream;
+        let tocandoAtualmente = false;
 
         window.onload = () => {
             document.getElementById('mural-tag').value = localStorage.getItem('vulgo') || '';
             atualizarTudo();
             ligarSimuladorCrew();
-            iniciarMotorRadio();
+            configurarEventosRadio();
         };
 
         document.getElementById('mural-tag').addEventListener('input', (e) => {
@@ -431,9 +427,13 @@
         });
 
         function salvarDados() {
-            localStorage.setItem('local_mural', JSON.stringify(dbMural));
-            localStorage.setItem('local_comentarios', JSON.stringify(dbComentarios));
-            localStorage.setItem('local_chat', JSON.stringify(dbChat));
+            try {
+                localStorage.setItem('local_mural', JSON.stringify(dbMural));
+                localStorage.setItem('local_comentarios', JSON.stringify(dbComentarios));
+                localStorage.setItem('local_chat', JSON.stringify(dbChat));
+            } catch (error) {
+                console.log("Memória cheia! Mantendo posts ativos apenas nesta aba temporariamente.");
+            }
         }
 
         function atualizarTudo() {
@@ -441,86 +441,156 @@
             carregarChat();
         }
 
-        // MOTOR REESTRUTURADO DO PLAYER DE ÁUDIO DINÂMICO
-        function iniciarMotorRadio() {
+        // ENGINE DA RÁDIO CORRIGIDA
+        function configurarEventosRadio() {
             const audio = document.getElementById('radio-audio');
-            
-            // Define a primeira estação da lista
-            carregarFonteEstacao(indiceEstacaoAtual);
+            audio.src = estacoesDeRadio[indiceEstacaoAtual].url;
 
-            // Ouvinte para erros de carregamento na rádio atual
             audio.addEventListener('error', () => {
-                console.log("Erro na estação atual. Pulando para a reserva...");
-                proximaEstacao();
+                if (tocandoAtualmente) {
+                    document.getElementById('radio-status').innerText = "❌ Servidor instável. Pulando estação...";
+                    setTimeout(proximaEstacao, 2000);
+                }
             });
+        }
 
-            // Monitor inteligente de travamento de reprodução
-            audio.addEventListener('waiting', () => {
-                clearTimeout(timeoutVerificacaoStream);
-                timeoutVerificacaoStream = setTimeout(() => {
-                    if (audio.paused === false && audio.currentTime === 0) {
-                        console.log("Estação travada em buffering inicial. Rotacionando...");
-                        proximaEstacao();
-                    }
-                }, 4000); // Se travar por 4 segundos sem soltar som, roda a lista
-            });
+        function alternarPlayPause() {
+            const audio = document.getElementById('radio-audio');
+            const btn = document.getElementById('btn-play-pause');
+            const status = document.getElementById('radio-status');
+            const estacao = estacoesDeRadio[indiceEstacaoAtual];
 
-            // Gatilho global de clique na tela para forçar o autoplay do navegador
-            const forcarPlayPorInteracao = () => {
+            if (!tocandoAtualmente) {
+                status.innerText = "⏳ Conectando: " + estacao.nome + "...";
+                btn.innerText = "⏳ CARREGANDO...";
+                
                 audio.play().then(() => {
-                    removerGatilhosInteracao();
-                }).catch(e => console.log("Aguardando clique válido para liberar áudio."));
-            };
-
-            document.addEventListener('click', forcarPlayPorInteracao);
-            document.addEventListener('touchstart', forcarPlayPorInteracao);
-
-            function removerGatilhosInteracao() {
-                document.removeEventListener('click', forcarPlayPorInteracao);
-                document.removeEventListener('touchstart', forcarPlayPorInteracao);
+                    tocandoAtualmente = true;
+                    btn.innerText = "⏸️ PAUSAR SOM";
+                    btn.style.background = "#ffd600";
+                    btn.style.color = "#000";
+                    status.innerText = "🟢 No Ar • " + estacao.nome;
+                }).catch(err => {
+                    tocandoAtualmente = false;
+                    btn.innerText = "▶️ SOLTAR O SOM";
+                    btn.style.background = "#e60000";
+                    btn.style.color = "#fff";
+                    status.innerText = "❌ Toque novamente para sintonizar.";
+                });
+            } else {
+                audio.pause();
+                tocandoAtualmente = false;
+                btn.innerText = "▶️ SOLTAR O SOM";
+                btn.style.background = "#e60000";
+                btn.style.color = "#fff";
+                status.innerText = "🔴 Rádio Pausada.";
             }
         }
 
-        function carregarFonteEstacao(indice) {
-            const audio = document.getElementById('radio-audio');
-            const status = document.getElementById('radio-status');
-            const estacao = estacoesDeRadio[indice];
-
-            audio.src = estacao.url;
-            status.innerText = "🎵 Sintonizando: " + estacao.nome;
-            audio.load();
-            
-            audio.play().then(() => {
-                status.innerText = "🟢 No Ar • " + estacao.nome;
-            }).catch(err => {
-                status.innerText = "📻 Toque na tela para liberar o som (" + estacao.nome + ")";
-            });
-        }
-
         function proximaEstacao() {
+            const audio = document.getElementById('radio-audio');
             indiceEstacaoAtual = (indiceEstacaoAtual + 1) % estacoesDeRadio.length;
-            carregarFonteEstacao(indiceEstacaoAtual);
+            
+            audio.src = estacoesDeRadio[indiceEstacaoAtual].url;
+            
+            if (tocandoAtualmente) {
+                tocandoAtualmente = false; 
+                alternarPlayPause();
+            } else {
+                document.getElementById('radio-status').innerText = "📻 Estação: " + estacoesDeRadio[indiceEstacaoAtual].nome;
+            }
         }
 
-        function copiarPix() {
-            navigator.clipboard.writeText(chavePixValida).then(() => {
-                const btn = document.getElementById('btn-pix-action');
-                btn.innerText = "💥 CHAVE COPIADA! SALVE!";
-                btn.style.background = "#00cc44";
-                btn.style.color = "#fff";
-                alert("Chave Pix (" + chavePixValida + ") copiada! Fortaleceu o movimento! 🎨✊");
-                setTimeout(() => {
-                    btn.innerText = "Copiar Chave Pix 📋";
-                    btn.style.background = "#ffd600";
-                    btn.style.color = "#000";
-                }, 4000);
-            });
+        // ENGINE DO MURAL COM SUPER COMPRESSOR ANTI-TRAVAMENTO
+        function enviarMural() {
+            const tag = document.getElementById('mural-tag').value.trim();
+            const legenda = document.getElementById('mural-legenda').value.trim();
+            const fileInput = document.getElementById('mural-file');
+            
+            if (!tag || !legenda) return alert("Preencha seu vulgo e a mensagem!");
+
+            const btnPostar = document.getElementById('btn-submit-mural');
+            btnPostar.innerText = "Processando... ⏳";
+            btnPostar.disabled = true;
+
+            const novoPost = {
+                id: Date.now(),
+                tag: tag,
+                legenda: legenda,
+                media_url: null,
+                likes: 0
+            };
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    if (file.type.startsWith('image/')) {
+                        const img = new Image();
+                        img.src = e.target.result;
+                        img.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            let width = img.width;
+                            let height = img.height;
+                            
+                            // Força a imagem a ficar leve para rodar liso em celulares
+                            const MAX_SIZE = 500; 
+                            if (width > height) {
+                                if (width > MAX_SIZE) {
+                                    height *= MAX_SIZE / width;
+                                    width = MAX_SIZE;
+                                }
+                            } else {
+                                if (height > MAX_SIZE) {
+                                    width *= MAX_SIZE / height;
+                                    height = MAX_SIZE;
+                                }
+                            }
+                            
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // Salva em JPEG ultra leve (qualidade 50%) para economizar o localStorage
+                            novoPost.media_url = canvas.toDataURL('image/jpeg', 0.5);
+                            
+                            dbMural.push(novoPost);
+                            salvarDados();
+                            concluirEnvioMural(btnPostar, fileInput);
+                        };
+                    } else {
+                        novoPost.media_url = e.target.result;
+                        dbMural.push(novoPost);
+                        salvarDados();
+                        concluirEnvioMural(btnPostar, fileInput);
+                    }
+                };
+                reader.readAsDataURL(file);
+            } else {
+                dbMural.push(novoPost);
+                salvarDados();
+                concluirEnvioMural(btnPostar, fileInput);
+            }
         }
 
-        // ENGINE DO MURAL
+        function concluirEnvioMural(btn, inputArquivos) {
+            document.getElementById('mural-legenda').value = '';
+            inputArquivos.value = '';
+            btn.innerText = "Agitar o Spray 💨";
+            btn.disabled = false;
+            carregarMural();
+        }
+
         function carregarMural() {
             const feed = document.getElementById('mural-feed');
             feed.innerHTML = '';
+
+            if (dbMural.length === 0) {
+                feed.innerHTML = '<div style="color: #666; text-align: center; padding: 20px; font-size: 0.9rem;">Mural limpo. Seja o primeiro a mandar o spray! 🎨</div>';
+                return;
+            }
 
             [...dbMural].reverse().forEach(post => {
                 const card = document.createElement('div');
@@ -555,13 +625,10 @@
                             💚 <span class="like-count">${post.likes}</span>
                         </button>
                         <button class="action-btn" onclick="editarPost(${post.id})" style="color: #ffd600;">
-                            ✏️ Editar
+                            ✏️ Edita
                         </button>
                         <button class="action-btn" onclick="apagarPost(${post.id})" style="color: #e60000;">
-                            🗑️ Apagar
-                        </button>
-                        <button class="action-btn" onclick="compartilharPost()">
-                            🔗 Copiar
+                            🗑️ Apaga
                         </button>
                     </div>
                     <div class="card-comments-section">
@@ -576,85 +643,6 @@
             });
         }
 
-        function enviarMural() {
-            const tag = document.getElementById('mural-tag').value.trim();
-            const legenda = document.getElementById('mural-legenda').value.trim();
-            const fileInput = document.getElementById('mural-file');
-            
-            if (!tag || !legenda) return alert("Preencha seu vulgo e a mensagem!");
-
-            const btnPostar = document.getElementById('btn-submit-mural');
-            btnPostar.innerText = "Agitando o Spray... ⏳";
-            btnPostar.disabled = true;
-
-            const novoPost = {
-                id: Date.now(),
-                tag: tag,
-                legenda: legenda,
-                media_url: null,
-                likes: 0
-            };
-
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    if (file.type.startsWith('image/')) {
-                        const img = new Image();
-                        img.src = e.target.result;
-                        img.onload = function() {
-                            const canvas = document.createElement('canvas');
-                            let width = img.width;
-                            let height = img.height;
-                            
-                            const MAX_SIZE = 800;
-                            if (width > height) {
-                                if (width > MAX_SIZE) {
-                                    height *= MAX_SIZE / width;
-                                    width = MAX_SIZE;
-                                }
-                            } else {
-                                if (height > MAX_SIZE) {
-                                    width *= MAX_SIZE / height;
-                                    height = MAX_SIZE;
-                                }
-                            }
-                            
-                            canvas.width = width;
-                            canvas.height = height;
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, width, height);
-                            
-                            novoPost.media_url = canvas.toDataURL('image/jpeg', 0.7);
-                            
-                            dbMural.push(novoPost);
-                            salvarDados();
-                            concluirEnvioMural(btnPostar, fileInput);
-                        };
-                    } else {
-                        novoPost.media_url = e.target.result;
-                        dbMural.push(novoPost);
-                        salvarDados();
-                        concluirEnvioMural(btnPostar, fileInput);
-                    }
-                };
-                reader.readAsDataURL(file);
-            } else {
-                dbMural.push(novoPost);
-                salvarDados();
-                concluirEnvioMural(btnPostar, fileInput);
-            }
-        }
-
-        function concluirEnvioMural(btn, inputArquivos) {
-            document.getElementById('mural-legenda').value = '';
-            inputArquivos.value = '';
-            btn.innerText = "Agitar o Spray 💨";
-            btn.disabled = false;
-            carregarMural();
-        }
-
         function editarPost(id) {
             const post = dbMural.find(p => p.id === id);
             if (post) {
@@ -667,19 +655,15 @@
             }
         }
 
-        // SISTEMA DE EXCLUSÃO TRAVADO POR SENHA DE ADMINISTRADOR (1405)
         function apagarPost(id) {
-            const senhaDigitada = prompt("⚠️ SISTEMA PROTEGIDO\nDigite a senha do ADM para excluir esta publicação:");
-            
+            const senhaDigitada = prompt("⚠️ CONTROLE DO ADM\nDigite a senha secreta para deletar:");
             if (senhaDigitada === "1405") {
-                if (confirm("Senha correta. Deseja apagar essa publicação permanentemente do sistema? 🗑️")) {
-                    dbMural = dbMural.filter(p => p.id !== id);
-                    dbComentarios = dbComentarios.filter(c => c.post_id !== id);
-                    salvarDados();
-                    carregarMural();
-                }
+                dbMural = dbMural.filter(p => p.id !== id);
+                dbComentarios = dbComentarios.filter(c => c.post_id !== id);
+                salvarDados();
+                carregarMural();
             } else if (senhaDigitada !== null) {
-                alert("❌ Acesso Negado! Senha incorreta.\nApenas o Peralta da galera P.D.M & A.S pode gerenciar as mídias.");
+                alert("❌ Senha Incorreta!");
             }
         }
 
@@ -689,29 +673,21 @@
                 post.likes += 1;
                 salvarDados();
                 btn.querySelector('.like-count').innerText = post.likes;
-                btn.classList.add('liked');
             }
         }
 
         function enviarComentario(postId, inputElement) {
             const txt = inputElement.value.trim();
             if(!txt) return;
-
             dbComentarios.push({ post_id: postId, user: meuVulgo, text: txt });
             salvarDados();
             inputElement.value = '';
             carregarMural();
         }
 
-        function compartilharPost() {
-            alert("Link copiado para a área de transferência! 📲🔥");
-        }
-
-        // ENGINE DO CHAT
         function carregarChat() {
             const chatBox = document.getElementById('chat-box');
             chatBox.innerHTML = '';
-            
             dbChat.forEach(msg => {
                 const row = document.createElement('div');
                 row.className = 'chat-row';
@@ -725,40 +701,31 @@
             const input = document.getElementById('chat-msg');
             const text = input.value.trim();
             if (!text) return;
-
             dbChat.push({ user: meuVulgo, text: text });
             salvarDados();
             input.value = '';
             carregarChat();
         }
 
-        // ROBÔ SIMULADOR
+        function copiarPix() {
+            navigator.clipboard.writeText(chavePixValida).then(() => {
+                alert("Chave Copiada! Salve! ✊");
+            });
+        }
+
         function ligarSimuladorCrew() {
-            const robos = ["Luz_Roots", "Grafite_011", "Rasta_Sampa", "Mestre_Bomb", "Vibe_Rua"];
-            const mensagens = [
-                "Essa rádio tá insana! Som pesado! 🔊🔥",
-                "Acabei de mandar uma tag no mural, olhem lá!",
-                "Arte salva vidas, rapaziada. Orgulho dessa crew.",
-                "Alguém na ativa pra riscar hoje?",
-                "Vibe positiva para todo mundo hoje!"
-            ];
-
+            const robos = ["Luz_Roots", "Grafite_011", "Rasta_Sampa"];
+            const mensagens = ["Som pesado! 🔊🔥", "Mural tá limpo e funcional agora!", "Vibe positiva família!"];
             setInterval(() => {
-                const acao = Math.random() > 0.4 ? 'chat' : 'curtir';
-                const roboAleatorio = robos[Math.floor(Math.random() * robos.length)];
-
-                if (acao === 'chat') {
+                if (Math.random() > 0.6) {
+                    const roboAleatorio = robos[Math.floor(Math.random() * robos.length)];
                     const msgAleatoria = mensagens[Math.floor(Math.random() * mensagens.length)];
                     dbChat.push({ user: roboAleatorio, text: msgAleatoria });
-                    if(dbChat.length > 30) dbChat.shift();
+                    if(dbChat.length > 20) dbChat.shift();
                     carregarChat();
-                } else if (dbMural.length > 0) {
-                    const postAleatorio = dbMural[Math.floor(Math.random() * dbMural.length)];
-                    postAleatorio.likes += 1;
-                    carregarMural();
+                    salvarDados();
                 }
-                salvarDados();
-            }, 15000);
+            }, 20000);
         }
     </script>
 </body>
