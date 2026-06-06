@@ -162,8 +162,10 @@
             display: flex;
             border-top: 1px solid #222;
             background: #0b0d0c;
-            padding: 10px 18px;
+            padding: 10px 14px;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .action-btn {
@@ -174,7 +176,7 @@
             font-size: 0.9rem;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             font-weight: bold;
         }
 
@@ -293,7 +295,6 @@
 
     <div class="container">
         
-        <!-- MURAL CENTRAL -->
         <main class="section-box">
             <div class="section-title">🎨 LARICA CULTURAL & ARTES</div>
             
@@ -307,9 +308,7 @@
             <div class="mural-grid" id="mural-feed"></div>
         </main>
 
-        <!-- COLUNA LATERAL -->
         <aside>
-            <!-- CHAT DA VIBE -->
             <div class="section-box">
                 <div class="section-title">💬 CHAT DA VIBE</div>
                 <div class="chat-container">
@@ -321,7 +320,6 @@
                 </div>
             </div>
 
-            <!-- APRECIAR / FORTALECER (PIX) -->
             <div class="section-box">
                 <div class="section-title">💰 FORTALEÇA A CREW</div>
                 <div class="pix-box">
@@ -332,14 +330,13 @@
         </aside>
     </div>
 
-    <!-- PLAYER DE ÁUDIO BLINDADO ANTIQUEDA -->
     <div class="radio-footer">
         <div class="radio-details">
             <h3>📻 RÁDIO UNIÃO ROOTS</h3>
             <p>🔴 No Ar: Transmissão Digital 24h</p>
         </div>
         
-        <audio controls style="filter: invert(1); max-width: 100%;">
+        <audio id="radio-audio" autoplay controls style="filter: invert(1); max-width: 100%;">
             <source src="https://live.hunter.fm/rap_high" type="audio/mpeg">
             <source src="https://stream.zeno.fm/088m9v0v40duv" type="audio/mpeg">
             <source src="https://rusp.suicid.com.br/usp-937-sp.mp3" type="audio/mpeg">
@@ -348,20 +345,20 @@
     </div>
 
     <script>
-        // BANCO DE DADOS LOCAL AUTOMÁTICO com Artes de Rua Reais
+        // BANCO DE DADOS LOCAL AUTOMÁTICO com Imagens Reais de Grafite de Rua Urbano
         let dbMural = JSON.parse(localStorage.getItem('local_mural')) || [
             { 
                 id: 1, 
                 tag: "Dada_Roots", 
                 legenda: "Muro finalizado na Zona Leste! Respeito, cores e união nas ruas 🎨✌️", 
-                media_url: "https://images.unsplash.com/photo-1569003339405-ea396a5a8a90?w=600&auto=format&fit=crop", 
+                media_url: "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=600&auto=format&fit=crop", 
                 likes: 14 
             },
             { 
                 id: 2, 
                 tag: "Sampa_Graff", 
                 legenda: "Rolê na madrugada rendeu esse bomb cabuloso. Salve a banca!", 
-                media_url: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop", 
+                media_url: "https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?w=600&auto=format&fit=crop", 
                 likes: 8 
             }
         ];
@@ -378,14 +375,13 @@
         ];
 
         let meuVulgo = localStorage.getItem('vulgo') || "Roots_" + Math.floor(Math.random() * 1000);
-        
-        // Chave Pix atualizada com o e-mail solicitado
         const chavePixValida = "uniaoexarp@gmail.com"; 
 
         window.onload = () => {
             document.getElementById('mural-tag').value = localStorage.getItem('vulgo') || '';
             atualizarTudo();
             ligarSimuladorCrew();
+            ativarAutoplayInteligente();
         };
 
         document.getElementById('mural-tag').addEventListener('input', (e) => {
@@ -402,6 +398,29 @@
         function atualizarTudo() {
             carregarMural();
             carregarChat();
+        }
+
+        // SISTEMA DE AUTOPLAY SEGURO ANTI-BLOQUEIO
+        function ativarAutoplayInteligente() {
+            const audio = document.getElementById('radio-audio');
+            
+            // Tenta dar play de cara (caso o ambiente ou Pydroid permita)
+            let playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    // Navegador barrou! Aguarda o primeiro clique do usuário no site para soltar o som
+                    const dispararSom = () => {
+                        audio.play().then(() => {
+                            // Deu certo! Remove os ouvintes para não rodar de novo
+                            document.removeEventListener('click', dispararSom);
+                            document.removeEventListener('touchstart', dispararSom);
+                        }).catch(e => console.log("A rádio ainda aguarda interação ativa."));
+                    };
+                    document.addEventListener('click', dispararSom);
+                    document.addEventListener('touchstart', dispararSom);
+                });
+            }
         }
 
         // SISTEMA DE INTERAÇÃO DO PIX
@@ -461,8 +480,14 @@
                         <button class="action-btn" onclick="curtirPost(${post.id}, this)">
                             💚 <span class="like-count">${post.likes}</span>
                         </button>
+                        <button class="action-btn" onclick="editarPost(${post.id})" style="color: #ffd600;">
+                            ✏️ Editar
+                        </button>
+                        <button class="action-btn" onclick="apagarPost(${post.id})" style="color: #e60000;">
+                            🗑️ Apagar
+                        </button>
                         <button class="action-btn" onclick="compartilharPost()">
-                            🔗 Compartilhar
+                            🔗 Copiar
                         </button>
                     </div>
                     <div class="card-comments-section">
@@ -484,6 +509,10 @@
             
             if (!tag || !legenda) return alert("Preencha seu vulgo e a mensagem!");
 
+            const btnPostar = document.getElementById('btn-submit-mural');
+            btnPostar.innerText = "Carregando arte... ⏳";
+            btnPostar.disabled = true;
+
             const novoPost = {
                 id: Date.now(),
                 tag: tag,
@@ -494,15 +523,52 @@
 
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
-                novoPost.media_url = URL.createObjectURL(file);
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    novoPost.media_url = e.target.result;
+                    dbMural.push(novoPost);
+                    salvarDados();
+                    
+                    document.getElementById('mural-legenda').value = '';
+                    fileInput.value = '';
+                    
+                    btnPostar.innerText = "Agitar o Spray 💨";
+                    btnPostar.disabled = false;
+                    carregarMural();
+                };
+                
+                reader.readAsDataURL(file);
+            } else {
+                dbMural.push(novoPost);
+                salvarDados();
+                
+                document.getElementById('mural-legenda').value = '';
+                btnPostar.innerText = "Agitar o Spray 💨";
+                btnPostar.disabled = false;
+                carregarMural();
             }
+        }
 
-            dbMural.push(novoPost);
-            salvarDados();
-            
-            document.getElementById('mural-legenda').value = '';
-            fileInput.value = '';
-            carregarMural();
+        function editarPost(id) {
+            const post = dbMural.find(p => p.id === id);
+            if (post) {
+                const novaLegenda = prompt("Edite a visão da arte ou do rolê:", post.legenda);
+                if (novaLegenda !== null && novaLegenda.trim() !== "") {
+                    post.legenda = novaLegenda.trim();
+                    salvarDados();
+                    carregarMural();
+                }
+            }
+        }
+
+        function apagarPost(id) {
+            if (confirm("Tem certeza que deseja apagar essa publicação permanentemente? 🗑️")) {
+                dbMural = dbMural.filter(p => p.id !== id);
+                dbComentarios = dbComentarios.filter(c => c.post_id !== id);
+                salvarDados();
+                carregarMural();
+            }
         }
 
         function curtirPost(id, btn) {
